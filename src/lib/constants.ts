@@ -7,31 +7,37 @@ export const data = {
             title: "Дашборд",
             url: "/",
             icon: IconDashboard,
+            queryKey: ""
         },
         {
             title: "Автомобили",
             url: "/cars",
             icon: Car,
+            queryKey: "cars"
         },
         {
             title: "Клиенты",
             url: "/clients",
             icon: User,
+            queryKey: "clients"
         },
         {
             title: "Аренда и бронирование",
             url: "/rent",
             icon: Handshake,
+            queryKey: "rents"
         },
         {
             title: "Платежи",
             url: "/payments",
             icon: IconMoneybag,
+            queryKey: "payments"
         },
         {
             title: "Импорт и экспорт Sqlite",
             url: "/sqlite",
             icon: IconDatabase,
+            queryKey: ""
         },
     ],
     navSecondary: [

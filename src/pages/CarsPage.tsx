@@ -33,96 +33,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Search, MoreHorizontal, Car, MapPin, Gauge } from "lucide-react";
+import { Search, Car, MapPin, Gauge, Plus } from "lucide-react";
+import { EntityDrawer } from "@/components/shared/entity-drawer";
 
-const mockCars = [
-  {
-    id: "1",
-    licensePlate: "А123БВ77",
-    brand: "Toyota",
-    model: "Camry",
-    year: 2022,
-    color: "Белый",
-    category: "business" as const,
-    dailyPrice: 2500,
-    isAvailable: true,
-    currentMileage: 15000,
-    status: "available" as const,
-    location: "Москва, ул. Тверская, 1",
-    createdAt: new Date("2024-01-15"),
-  },
-  {
-    id: "2",
-    licensePlate: "В456ГД77",
-    brand: "Hyundai",
-    model: "Solaris",
-    year: 2021,
-    color: "Серый",
-    category: "economy" as const,
-    dailyPrice: 1500,
-    isAvailable: false,
-    currentMileage: 32000,
-    status: "rented" as const,
-    location: "Москва, ул. Арбат, 15",
-    createdAt: new Date("2024-02-10"),
-  },
-  {
-    id: "3",
-    licensePlate: "Е789ЖЗ77",
-    brand: "BMW",
-    model: "X5",
-    year: 2023,
-    color: "Черный",
-    category: "business" as const,
-    dailyPrice: 4500,
-    isAvailable: false,
-    currentMileage: 8500,
-    status: "maintenance" as const,
-    location: "Москва, Кутузовский пр-т, 12",
-    createdAt: new Date("2024-03-05"),
-  },
-  {
-    id: "4",
-    licensePlate: "И012КЛ77",
-    brand: "Kia",
-    model: "Rio",
-    year: 2020,
-    color: "Красный",
-    category: "economy" as const,
-    dailyPrice: 1200,
-    isAvailable: true,
-    currentMileage: 45000,
-    status: "available" as const,
-    location: "Москва, ул. Новый Арбат, 24",
-    createdAt: new Date("2024-01-20"),
-  },
-  {
-    id: "5",
-    licensePlate: "М345НО77",
-    brand: "Mercedes-Benz",
-    model: "E-Class",
-    year: 2023,
-    color: "Синий",
-    category: "business" as const,
-    dailyPrice: 5000,
-    isAvailable: true,
-    currentMileage: 12000,
-    status: "available" as const,
-    location: "Москва, ул. Остоженка, 7",
-    createdAt: new Date("2024-02-28"),
-  },
-];
+import type { ICreateCar, ICar } from "@/types/cars-types";
+import { useCars } from "@/hooks/use-cars";
 
 const statusColors = {
-  available: "bg-green-100 text-green-800 border-green-200",
-  rented: "bg-blue-100 text-blue-800 border-blue-200",
-  maintenance: "bg-orange-100 text-orange-800 border-orange-200",
+  available: "bg-emerald-500/10 text-emerald-700 border-emerald-200/50",
+  rented: "bg-blue-500/10 text-blue-700 border-blue-200/50",
+  maintenance: "bg-amber-500/10 text-amber-700 border-amber-200/50",
 };
 
 const statusLabels = {
@@ -137,169 +57,248 @@ const categoryLabels = {
   business: "Бизнес",
 };
 
+const carFields = [
+  { key: "licensePlate", label: "Номерной знак", type: "text" as const },
+  { key: "brand", label: "Марка", type: "text" as const },
+  { key: "model", label: "Модель", type: "text" as const },
+  { key: "year", label: "Год выпуска", type: "number" as const },
+  { key: "color", label: "Цвет", type: "text" as const },
+  {
+    key: "category",
+    label: "Категория",
+    type: "select" as const,
+    options: [
+      { value: "economy", label: "Эконом" },
+      { value: "comfort", label: "Комфорт" },
+      { value: "business", label: "Бизнес" },
+    ],
+  },
+  {
+    key: "status",
+    label: "Статус",
+    type: "select" as const,
+    options: [
+      { value: "available", label: "Доступен" },
+      { value: "rented", label: "Арендован" },
+      { value: "maintenance", label: "Обслуживание" },
+    ],
+  },
+  { key: "dailyPrice", label: "Цена за день (₽)", type: "number" as const },
+  { key: "currentMileage", label: "Пробег (км)", type: "number" as const },
+  { key: "location", label: "Местоположение", type: "text" as const },
+];
+
 export default function CarsPage() {
-  const [cars, _setCars] = useState(mockCars);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-
-  const filteredCars = cars.filter((car) => {
-    const matchesSearch =
-      car.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      car.model.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || car.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === "all" || car.category === categoryFilter;
-
-    return matchesSearch && matchesStatus && matchesCategory;
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<ICar | null>(null);
+  const [newCarData, setNewCarData] = useState<ICreateCar>({
+    licensePlate: "",
+    brand: "",
+    model: "",
+    year: 0,
+    color: "",
+    category: "economy",
+    dailyPrice: 0,
+    isAvailable: false,
+    currentMileage: 0,
+    status: "available",
+    location: "",
   });
 
-  const availableCars = cars.filter((car) => car.status === "available").length;
-  const rentedCars = cars.filter((car) => car.status === "rented").length;
-  const maintenanceCars = cars.filter(
-    (car) => car.status === "maintenance"
-  ).length;
+  const {
+    cars,
+    isCarsLoading,
+    createCar,
+    isCreateCarLoading,
+    deleteCar,
+    updateCar,
+    isUpdateCarLoading,
+    isDeleteCarLoading,
+  } = useCars(() => setIsAddDialogOpen(false));
+
+  let filteredCars = [];
+  let maintenanceCars = 0;
+  let availableCars = 0;
+  let rentedCars = 0;
+
+  if (cars) {
+    filteredCars = cars.filter(
+      (car: {
+        licensePlate: string;
+        brand: string;
+        model: string;
+        status: string;
+        category: string;
+      }) => {
+        const matchesSearch =
+          car.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          car.model.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus =
+          statusFilter === "all" || car.status === statusFilter;
+        const matchesCategory =
+          categoryFilter === "all" || car.category === categoryFilter;
+
+        return matchesSearch && matchesStatus && matchesCategory;
+      }
+    );
+
+    availableCars = cars.filter(
+      (car: { status: string }) => car.status === "available"
+    ).length;
+    rentedCars = cars.filter(
+      (car: { status: string }) => car.status === "rented"
+    ).length;
+    maintenanceCars = cars.filter(
+      (car: { status: string }) => car.status === "maintenance"
+    ).length;
+  }
+
+  const handleAddCar = () => {
+    createCar(newCarData);
+    setNewCarData({
+      licensePlate: "",
+      brand: "",
+      model: "",
+      year: 0,
+      color: "",
+      category: "economy",
+      dailyPrice: 0,
+      isAvailable: false,
+      currentMileage: 0,
+      status: "available",
+      location: "",
+    });
+  };
+
+  const handleDeleteCar = () => {
+    if (selectedCar) {
+      deleteCar(selectedCar.id);
+      setIsDrawerOpen(false);
+      setSelectedCar(null);
+    }
+  };
+
+  const handleRowClick = (car: ICar) => {
+    setSelectedCar({ ...car });
+    setIsDrawerOpen(true);
+  };
+
+  const handleSaveCar = () => {
+    if (selectedCar) {
+      updateCar({
+        car: {
+          licensePlate: selectedCar.licensePlate,
+          brand: selectedCar.brand,
+          model: selectedCar.model,
+          year: selectedCar.year,
+          color: selectedCar.color,
+          category: selectedCar.category,
+          dailyPrice: selectedCar.dailyPrice,
+          isAvailable: selectedCar.isAvailable,
+          currentMileage: selectedCar.currentMileage,
+          status: selectedCar.status,
+          location: selectedCar.location,
+        },
+        id: selectedCar.id,
+      });
+      setIsDrawerOpen(false);
+      setSelectedCar(null);
+    }
+  };
+
+  const handleCloseDrawer = (open: boolean) => {
+    setIsDrawerOpen(open);
+    if (!open) {
+      setTimeout(() => {
+        setSelectedCar(null);
+      }, 150);
+    }
+  };
+
+  if (isCarsLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground font-medium">
+            Загрузка данных об автомобилях...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Добавить новый автомобиль</DialogTitle>
-              <DialogDescription>
-                Заполните информацию о новом автомобиле для добавления в
-                автопарк.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="licensePlate">Номерной знак</Label>
-                  <Input id="licensePlate" placeholder="А123БВ77" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="brand">Марка</Label>
-                  <Input id="brand" placeholder="Toyota" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="model">Модель</Label>
-                  <Input id="model" placeholder="Camry" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="year">Год выпуска</Label>
-                  <Input id="year" type="number" placeholder="2023" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="color">Цвет</Label>
-                  <Input id="color" placeholder="Белый" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Категория</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Выберите категорию" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="economy">Эконом</SelectItem>
-                      <SelectItem value="comfort">Комфорт</SelectItem>
-                      <SelectItem value="business">Бизнес</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="dailyPrice">Цена за день (₽)</Label>
-                  <Input id="dailyPrice" type="number" placeholder="2500" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="mileage">Пробег (км)</Label>
-                  <Input id="mileage" type="number" placeholder="15000" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Местоположение</Label>
-                <Input id="location" placeholder="Москва, ул. Тверская, 1" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsAddDialogOpen(false)}
-              >
-                Отмена
-              </Button>
-              <Button onClick={() => setIsAddDialogOpen(false)}>
-                Добавить автомобиль
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
       <div className="px-6 py-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Всего автомобилей
               </CardTitle>
-              <Car className="h-4 w-4 text-muted-foreground" />
+              <Car className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{cars.length}</div>
+              <div className="text-3xl font-bold text-foreground">
+                {cars?.length || 0}
+              </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Доступно</CardTitle>
-              <div className="h-2 w-2 rounded-full bg-green-500" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Доступно
+              </CardTitle>
+              <div className="h-3 w-3 rounded-full bg-emerald-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-3xl font-bold text-emerald-600">
                 {availableCars}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">В аренде</CardTitle>
-              <div className="h-2 w-2 rounded-full bg-blue-500" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                В аренде
+              </CardTitle>
+              <div className="h-3 w-3 rounded-full bg-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-3xl font-bold text-blue-600">
                 {rentedCars}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 На обслуживании
               </CardTitle>
-              <div className="h-2 w-2 rounded-full bg-orange-500" />
+              <div className="h-3 w-3 rounded-full bg-amber-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="text-3xl font-bold text-amber-600">
                 {maintenanceCars}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filters and Search */}
-        <Card className="mb-6">
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-lg">Фильтры и поиск</CardTitle>
+            <CardTitle className="text-lg text-foreground">
+              Фильтры и поиск
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Найдите нужный автомобиль с помощью фильтров
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -340,16 +339,182 @@ export default function CarsPage() {
           </CardContent>
         </Card>
 
-        {/* Cars Table */}
+        {/* Add Car Dialog */}
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Добавить новый автомобиль</DialogTitle>
+              <DialogDescription>
+                Заполните информацию о новом автомобиле для добавления в
+                автопарк.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="licensePlate">Номерной знак</Label>
+                  <Input
+                    id="licensePlate"
+                    placeholder="А123БВ77"
+                    value={newCarData.licensePlate}
+                    onChange={(e) =>
+                      setNewCarData({
+                        ...newCarData,
+                        licensePlate: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="brand">Марка</Label>
+                  <Input
+                    id="brand"
+                    placeholder="Toyota"
+                    value={newCarData.brand}
+                    onChange={(e) =>
+                      setNewCarData({ ...newCarData, brand: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="model">Модель</Label>
+                  <Input
+                    id="model"
+                    placeholder="Camry"
+                    value={newCarData.model}
+                    onChange={(e) =>
+                      setNewCarData({ ...newCarData, model: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="year">Год выпуска</Label>
+                  <Input
+                    id="year"
+                    type="number"
+                    placeholder="2023"
+                    value={newCarData.year}
+                    onChange={(e) =>
+                      setNewCarData({
+                        ...newCarData,
+                        year: Number.parseInt(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="color">Цвет</Label>
+                  <Input
+                    id="color"
+                    placeholder="Белый"
+                    value={newCarData.color}
+                    onChange={(e) =>
+                      setNewCarData({ ...newCarData, color: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category">Категория</Label>
+                  <Select
+                    value={newCarData.category}
+                    onValueChange={(
+                      value: "economy" | "comfort" | "business"
+                    ) => setNewCarData({ ...newCarData, category: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите категорию" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="economy">Эконом</SelectItem>
+                      <SelectItem value="comfort">Комфорт</SelectItem>
+                      <SelectItem value="business">Бизнес</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="dailyPrice">Цена за день (₽)</Label>
+                  <Input
+                    id="dailyPrice"
+                    type="number"
+                    placeholder="2500"
+                    value={newCarData.dailyPrice}
+                    onChange={(e) =>
+                      setNewCarData({
+                        ...newCarData,
+                        dailyPrice: Number.parseInt(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="mileage">Пробег (км)</Label>
+                  <Input
+                    id="mileage"
+                    type="number"
+                    placeholder="15000"
+                    value={newCarData.currentMileage}
+                    onChange={(e) =>
+                      setNewCarData({
+                        ...newCarData,
+                        currentMileage: Number.parseInt(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="location">Местоположение</Label>
+                <Input
+                  id="location"
+                  placeholder="Москва, ул. Тверская, 1"
+                  value={newCarData.location}
+                  onChange={(e) =>
+                    setNewCarData({ ...newCarData, location: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddDialogOpen(false)}
+              >
+                Отмена
+              </Button>
+              <Button
+                variant={"outline"}
+                onClick={handleAddCar}
+                disabled={isCreateCarLoading}
+              >
+                {isCreateCarLoading ? "Добавление..." : "Добавить автомобиль"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Список автомобилей</CardTitle>
-            <CardDescription>
-              Найдено {filteredCars.length} автомобилей из {cars.length}
-            </CardDescription>
+          <CardHeader className="flex justify-between">
+            <div>
+              <CardTitle className="text-lg text-foreground">
+                Список автомобилей
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Найдено {filteredCars.length} автомобилей из {cars?.length || 0}
+              </CardDescription>
+            </div>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Добавить автомобиль
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
+            <div className="rounded-lg border overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -360,19 +525,22 @@ export default function CarsPage() {
                     <TableHead>Цена/день</TableHead>
                     <TableHead>Пробег</TableHead>
                     <TableHead>Местоположение</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredCars.map((car) => (
-                    <TableRow key={car.id}>
+                  {filteredCars.map((car: ICar) => (
+                    <TableRow
+                      key={car.id}
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => handleRowClick(car)}
+                    >
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                            <Car className="h-5 w-5 text-muted-foreground" />
+                          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Car className="h-6 w-6 text-primary" />
                           </div>
                           <div>
-                            <div className="font-medium">
+                            <div className="font-semibold text-foreground">
                               {car.brand} {car.model}
                             </div>
                             <div className="text-sm text-muted-foreground">
@@ -381,11 +549,11 @@ export default function CarsPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="font-mono font-medium">
+                      <TableCell className="font-mono font-semibold text-foreground">
                         {car.licensePlate}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">
+                        <Badge variant="secondary">
                           {categoryLabels[car.category]}
                         </Badge>
                       </TableCell>
@@ -394,40 +562,24 @@ export default function CarsPage() {
                           {statusLabels[car.status]}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-semibold text-foreground">
                         {car.dailyPrice.toLocaleString()} ₽
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
                           <Gauge className="h-4 w-4 text-muted-foreground" />
-                          {car.currentMileage.toLocaleString()} км
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 max-w-[200px]">
-                          <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          <span className="text-sm truncate">
-                            {car.location}
+                          <span className="text-foreground">
+                            {car.currentMileage.toLocaleString()} км
                           </span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Редактировать</DropdownMenuItem>
-                            <DropdownMenuItem>
-                              Просмотр истории
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
-                              Удалить
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center gap-2 max-w-[200px]">
+                          <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-sm text-foreground truncate">
+                            {car.location}
+                          </span>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -437,6 +589,55 @@ export default function CarsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <EntityDrawer
+        isOpen={isDrawerOpen}
+        onOpenChange={handleCloseDrawer}
+        entity={selectedCar}
+        onEntityChange={setSelectedCar}
+        onSave={handleSaveCar}
+        onDelete={handleDeleteCar}
+        isSaving={isUpdateCarLoading}
+        isDeleting={isDeleteCarLoading}
+        title="Редактирование автомобиля"
+        description="Измените данные автомобиля и нажмите 'Сохранить'"
+        fields={carFields}
+        additionalInfo={
+          selectedCar && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-foreground">
+                Дополнительная информация
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">
+                    Дата добавления
+                  </Label>
+                  <div className="text-sm font-medium text-foreground">
+                    {selectedCar.createdAt
+                      ? new Date(selectedCar.createdAt).toLocaleDateString(
+                          "ru-RU"
+                        )
+                      : "Не указана"}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">
+                    Последнее обновление
+                  </Label>
+                  <div className="text-sm font-medium text-foreground">
+                    {selectedCar.updatedAt
+                      ? new Date(selectedCar.updatedAt).toLocaleDateString(
+                          "ru-RU"
+                        )
+                      : "Не указана"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        }
+      />
     </div>
   );
 }

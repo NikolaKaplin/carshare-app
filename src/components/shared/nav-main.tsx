@@ -3,10 +3,9 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router";
+import NavLinkPrefetch from "./nav-links";
 
 export function NavMain({
   items,
@@ -15,6 +14,7 @@ export function NavMain({
     title: string;
     url: string;
     icon: Icon;
+    queryKey: string;
   }[];
 }) {
   return (
@@ -23,12 +23,7 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <Link to={item.url}>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                </SidebarMenuButton>
-              </Link>
+              <NavLinkPrefetch item={item} />
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

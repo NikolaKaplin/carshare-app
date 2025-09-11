@@ -1,8 +1,5 @@
-// src/contexts/AuthContext.tsx
-import { schema } from "@/components/shared/data-table";
 import { useAuthStore, User } from "@/stores/auth-store";
 import { ReactNode, createContext, useContext } from "react";
-import { createTauriDrizzle } from "tauri-react-sqlite";
 
 interface AuthorizedContextType {
   isAuthorized: boolean;

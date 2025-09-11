@@ -8,19 +8,22 @@ import ClientsPage from "./pages/ClientsPage";
 import PaymentsPage from "./pages/PaymentsPage";
 import RentsPage from "./pages/RentsPage";
 import ImportExportPage from "./pages/SqlitePage";
+import RootLayout from "./layouts/root-layout";
 
 function Routing() {
   return (
     <Routes>
-      <Route path="auth" element={<AuthPage />} />
-      <Route element={<AuthLayout />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="/" element={<TestPage />} />
-          <Route path="cars" element={<CarsPage />} />
-          <Route path="clients" element={<ClientsPage />} />
-          <Route path="payments" element={<PaymentsPage />} />
-          <Route path="rent" element={<RentsPage />} />
-          <Route path="sqlite" element={<ImportExportPage />} />
+      <Route element={<RootLayout />}>
+        <Route path="auth" element={<AuthPage />} />
+        <Route element={<AuthLayout />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/" element={<TestPage />} />
+            <Route path="cars" element={<CarsPage />} />
+            <Route path="clients" element={<ClientsPage />} />
+            <Route path="payments" element={<PaymentsPage />} />
+            <Route path="rent" element={<RentsPage />} />
+            <Route path="sqlite" element={<ImportExportPage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

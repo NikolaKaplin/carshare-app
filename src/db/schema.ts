@@ -1,8 +1,8 @@
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
-import { createId as cuid } from '@paralleldrive/cuid2';
+
 // 1. Пользователи 
 export const users = sqliteTable("users", {
-    id: text('id', { length: 255, mode: "text" }).$default(cuid).unique().notNull(),
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
     username: text('username', { length: 65 }).notNull(),
     email: text('email').notNull().unique(),
     passwordHash: text('password_hash').notNull(),
@@ -10,7 +10,7 @@ export const users = sqliteTable("users", {
 
 // 2. Клиенты
 export const clients = sqliteTable('clients', {
-    id: text('id', { length: 255, mode: "text" }).$default(cuid).unique().notNull(),
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
     username: text('username').notNull(),
     email: text('email').notNull().unique(),
     role: text('role', { enum: ['client', 'admin'] }).notNull().default('client'),
@@ -23,7 +23,7 @@ export const clients = sqliteTable('clients', {
 
 // 3. Автомобили
 export const cars = sqliteTable('cars', {
-    id: text('id', { length: 255, mode: "text" }).$default(cuid).unique().notNull(),
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
     licensePlate: text('license_plate').notNull().unique(),
     brand: text('brand').notNull(),
     model: text('model').notNull(),
@@ -40,9 +40,9 @@ export const cars = sqliteTable('cars', {
 
 // 4. Бронирования
 export const bookings = sqliteTable('bookings', {
-    id: text('id', { length: 255, mode: "text" }).$default(cuid).unique().notNull(),
-    userId: text('client_id', { length: 255 }).notNull().references(() => clients.id),
-    carId: text('car_id', { length: 255 }).notNull().references(() => cars.id),
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+    userId: integer('client_id').notNull().references(() => clients.id),
+    carId: integer('car_id').notNull().references(() => cars.id),
     startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
     endDate: integer('end_date', { mode: 'timestamp' }).notNull(),
     totalDays: integer('total_days').notNull(),
@@ -55,7 +55,7 @@ export const bookings = sqliteTable('bookings', {
 
 // 5. Обслуживание
 export const maintenance = sqliteTable('maintenance', {
-    id: text('id', { length: 255, mode: "text" }).$default(cuid).unique().notNull(),
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
     carId: integer('car_id').notNull().references(() => cars.id),
     description: text('description').notNull(),
     cost: real('cost').notNull().default(0),
@@ -66,9 +66,9 @@ export const maintenance = sqliteTable('maintenance', {
 
 // 6. Платежи
 export const payments = sqliteTable('payments', {
-    id: text('id', { length: 255, mode: "text" }).$default(cuid).unique().notNull(),
-    bookingId: text('booking_id', { length: 255 }).notNull().references(() => bookings.id),
-    userId: text('user_id', { length: 255 }).notNull().references(() => users.id),
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+    bookingId: integer('booking_id').notNull().references(() => bookings.id),
+    userId: integer('user_id').notNull().references(() => users.id),
     amount: real('amount').notNull(),
     status: text('status', { enum: ['pending', 'completed', 'failed', 'refunded'] }).notNull().default('pending'),
     transactionId: text('transaction_id').unique(),

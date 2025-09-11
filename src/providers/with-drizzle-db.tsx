@@ -1,10 +1,10 @@
 import { DatabaseProvider } from "tauri-react-sqlite";
 import * as schema from "../db/schema";
 
-export const witDrizzleDb = (component: () => React.ReactNode) => () => {
+export const withDrizzleDb = (component: () => React.ReactNode) => () => {
   return (
     <DatabaseProvider
-      options={{ schema: schema, dbPath: "sqlite:test.db", logger: true }}
+      options={{ schema: schema, dbPath: "sqlite:test.db", logger: false }}
     >
       {component()}
     </DatabaseProvider>

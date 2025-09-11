@@ -29,7 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   asChild
                   className="data-[slot=sidebar-menu-button]:!p-1.5 hover:bg-sidebar active:bg-sidebar"
                 >
-                  <div>
+                  <div className="mt-8">
                     <IconInnerShadowTop className="!size-5" />
                     <span className="text-base font-semibold flex">
                       <p className="font-bold">belka</p>
