@@ -1,5 +1,5 @@
 import { IconDashboard, IconSettings, IconHelp, IconSearch, IconDatabase, IconMoneybag } from "@tabler/icons-react";
-import { Car, User, Handshake } from "lucide-react";
+import { Car, User, Handshake, Drill } from "lucide-react";
 
 export const data = {
     navMain: [
@@ -23,9 +23,15 @@ export const data = {
         },
         {
             title: "Аренда и бронирование",
-            url: "/rent",
+            url: "/bookings",
             icon: Handshake,
-            queryKey: "rents"
+            queryKey: "bookings"
+        },
+        {
+            title: "Ремонт и обслуживание",
+            url: '/maintenance',
+            icon: Drill,
+            queryKey: "maintenances"
         },
         {
             title: "Платежи",

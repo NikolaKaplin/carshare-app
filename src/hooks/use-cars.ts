@@ -5,20 +5,20 @@ import { useMutation, usePrefetchQuery, useQuery, useQueryClient } from "@tansta
 import { useMemo } from "react";
 import { useDatabase } from "tauri-react-sqlite";
 
-export const useCars = (callback: () => void) => {
+export const useCars = (callback?: () => void) => {
   const queryClient = useQueryClient();
   const db = useDatabase();
 
   const { data: cars, isLoading: isCarsLoading } = useQuery({
     queryKey: ["cars"],
     queryFn: () => carsService.getCars(db),
-    refetchInterval: 120000,
+    refetchInterval: 60000,
   });
 
   const prefetchCars = usePrefetchQuery({
     queryKey: ['cars'],
     queryFn: () => carsService.getCars(db),
-    staleTime: 60000,
+    staleTime: 30000,
   })
 
   const { mutate: createCar, isPending: isCreateCarLoading } = useMutation({

@@ -20,7 +20,6 @@ export const carsService = {
     if (!db) throw new Error("Database not initialized");
     const newCar = returningId(await db.insert(cars).values(car));
     const createdCar = await db.select().from(cars).where(eq(cars.id, newCar!));
-    console.log("created car data: ", newCar);
     return createdCar;
   },
 

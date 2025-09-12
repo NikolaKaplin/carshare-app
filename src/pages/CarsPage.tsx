@@ -120,7 +120,7 @@ export default function CarsPage() {
     isDeleteCarLoading,
   } = useCars(() => setIsAddDialogOpen(false));
 
-  let filteredCars = [];
+  let filteredCars: ICar[] = [];
   let maintenanceCars = 0;
   let availableCars = 0;
   let rentedCars = 0;
@@ -616,18 +616,6 @@ export default function CarsPage() {
                   <div className="text-sm font-medium text-foreground">
                     {selectedCar.createdAt
                       ? new Date(selectedCar.createdAt).toLocaleDateString(
-                          "ru-RU"
-                        )
-                      : "Не указана"}
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">
-                    Последнее обновление
-                  </Label>
-                  <div className="text-sm font-medium text-foreground">
-                    {selectedCar.updatedAt
-                      ? new Date(selectedCar.updatedAt).toLocaleDateString(
                           "ru-RU"
                         )
                       : "Не указана"}

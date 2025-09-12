@@ -1,17 +1,14 @@
-import { useEffect, useState } from "react";
-import { Minimize2, Maximize2, X, Square } from "lucide-react";
+import { useEffect } from "react";
+import { Minimize2, X, Square } from "lucide-react";
 import { Outlet } from "react-router";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 const RootLayout = () => {
-  const [isMaximized, setIsMaximized] = useState(false);
-
   useEffect(() => {
     const initializeWindowState = async () => {
       try {
         const appWindow = getCurrentWindow();
-        const maximized = await appWindow.isMaximized();
-        setIsMaximized(maximized);
+        await appWindow.isMaximized();
       } catch (error) {
         console.error("Error getting window state:", error);
       }
@@ -54,8 +51,7 @@ const RootLayout = () => {
           try {
             await appWindow.toggleMaximize();
             setTimeout(async () => {
-              const maximized = await appWindow.isMaximized();
-              setIsMaximized(maximized);
+              await appWindow.isMaximized();
             }, 100);
           } catch (error) {
             console.error("Error toggling maximize:", error);
@@ -82,8 +78,7 @@ const RootLayout = () => {
 
     const unlisten = appWindow.onResized(async () => {
       try {
-        const maximized = await appWindow.isMaximized();
-        setIsMaximized(maximized);
+        await appWindow.isMaximized();
       } catch (error) {
         console.error("Error checking window state on resize:", error);
       }

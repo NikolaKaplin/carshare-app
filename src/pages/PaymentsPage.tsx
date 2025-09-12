@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,342 +34,298 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Search,
-  MoreHorizontal,
   CreditCard,
-  Users,
   DollarSign,
-  Receipt,
-  AlertCircle,
+  Calendar,
+  User,
+  Plus,
 } from "lucide-react";
+import { EntityDrawer } from "@/components/shared/entity-drawer";
 
-// Mock data based on the payments schema
-const mockPayments = [
-  {
-    id: "1",
-    bookingId: "1",
-    userId: "1",
-    amount: 7500,
-    status: "completed" as const,
-    transactionId: "txn_1234567890",
-    cardLastDigits: "4242",
-    paymentDate: new Date("2024-12-08T14:30:00"),
-    createdAt: new Date("2024-12-08T14:25:00"),
-    // Related data
-    booking: {
-      startDate: new Date("2024-12-10T10:00:00"),
-      endDate: new Date("2024-12-12T18:00:00"),
-      totalDays: 3,
-      car: { brand: "Toyota", model: "Camry", licensePlate: "А123БВ77" },
-    },
-    user: { fullName: "Иван Петров", email: "ivan.petrov@email.com" },
-  },
-  {
-    id: "2",
-    bookingId: "2",
-    userId: "2",
-    amount: 3000,
-    status: "completed" as const,
-    transactionId: "txn_2345678901",
-    cardLastDigits: "1234",
-    paymentDate: new Date("2024-12-13T16:45:00"),
-    createdAt: new Date("2024-12-13T16:40:00"),
-    booking: {
-      startDate: new Date("2024-12-15T09:00:00"),
-      endDate: new Date("2024-12-16T20:00:00"),
-      totalDays: 2,
-      car: { brand: "Hyundai", model: "Solaris", licensePlate: "В456ГД77" },
-    },
-    user: { fullName: "Мария Сидорова", email: "maria.sidorova@email.com" },
-  },
-  {
-    id: "3",
-    bookingId: "3",
-    userId: "4",
-    amount: 2400,
-    status: "pending" as const,
-    transactionId: null,
-    cardLastDigits: null,
-    paymentDate: null,
-    createdAt: new Date("2024-12-18T10:15:00"),
-    booking: {
-      startDate: new Date("2024-12-20T14:00:00"),
-      endDate: new Date("2024-12-22T12:00:00"),
-      totalDays: 2,
-      car: { brand: "Kia", model: "Rio", licensePlate: "И012КЛ77" },
-    },
-    user: { fullName: "Сергей Козлов", email: "sergey.kozlov@email.com" },
-  },
-  {
-    id: "4",
-    bookingId: "4",
-    userId: "5",
-    amount: 15000,
-    status: "completed" as const,
-    transactionId: "txn_3456789012",
-    cardLastDigits: "5678",
-    paymentDate: new Date("2024-11-23T12:20:00"),
-    createdAt: new Date("2024-11-23T12:15:00"),
-    booking: {
-      startDate: new Date("2024-11-25T11:00:00"),
-      endDate: new Date("2024-11-27T16:00:00"),
-      totalDays: 3,
-      car: {
-        brand: "Mercedes-Benz",
-        model: "E-Class",
-        licensePlate: "М345НО77",
-      },
-    },
-    user: { fullName: "Елена Волкова", email: "elena.volkova@email.com" },
-  },
-  {
-    id: "5",
-    bookingId: "5",
-    userId: "1",
-    amount: 18000,
-    status: "refunded" as const,
-    transactionId: "txn_4567890123",
-    cardLastDigits: "4242",
-    paymentDate: new Date("2024-12-20T09:30:00"),
-    createdAt: new Date("2024-12-20T09:25:00"),
-    booking: {
-      startDate: new Date("2024-12-25T10:00:00"),
-      endDate: new Date("2024-12-28T18:00:00"),
-      totalDays: 4,
-      car: { brand: "BMW", model: "X5", licensePlate: "Е789ЖЗ77" },
-    },
-    user: { fullName: "Иван Петров", email: "ivan.petrov@email.com" },
-  },
-  {
-    id: "6",
-    bookingId: "6",
-    userId: "3",
-    amount: 5500,
-    status: "failed" as const,
-    transactionId: "txn_5678901234",
-    cardLastDigits: "9999",
-    paymentDate: null,
-    createdAt: new Date("2024-12-19T15:10:00"),
-    booking: {
-      startDate: new Date("2024-12-21T08:00:00"),
-      endDate: new Date("2024-12-23T19:00:00"),
-      totalDays: 3,
-      car: { brand: "Volkswagen", model: "Polo", licensePlate: "Н678ПР77" },
-    },
-    user: { fullName: "Александр Админов", email: "alex.admin@company.com" },
-  },
-];
+import type { ICreatePayment, IPayment } from "@/types/payments-types";
+import { usePayments } from "@/hooks/use-payments";
+import { useBookings } from "@/hooks/use-bookings";
+import { useClients } from "@/hooks/use-clients";
 
 const statusColors = {
-  pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  completed: "bg-green-100 text-green-800 border-green-200",
-  failed: "bg-red-100 text-red-800 border-red-200",
-  refunded: "bg-orange-100 text-orange-800 border-orange-200",
+  pending: "bg-amber-500/10 text-amber-700 border-amber-200/50",
+  completed: "bg-emerald-500/10 text-emerald-700 border-emerald-200/50",
+  failed: "bg-red-500/10 text-red-700 border-red-200/50",
+  refunded: "bg-blue-500/10 text-blue-700 border-blue-200/50",
 };
 
 const statusLabels = {
-  pending: "Ожидает",
+  pending: "Ожидание",
   completed: "Завершен",
-  failed: "Неудачный",
-  refunded: "Возвращен",
+  failed: "Ошибка",
+  refunded: "Возврат",
 };
 
+const paymentFields = [
+  {
+    key: "bookingId",
+    label: "Бронирование",
+    type: "select" as const,
+    options: [], // будет заполнено динамически
+  },
+  {
+    key: "userId",
+    label: "Клиент",
+    type: "select" as const,
+    options: [], // будет заполнено динамически
+  },
+  { key: "amount", label: "Сумма (₽)", type: "number" as const },
+  {
+    key: "status",
+    label: "Статус",
+    type: "select" as const,
+    options: [
+      { value: "pending", label: "Ожидание" },
+      { value: "completed", label: "Завершен" },
+      { value: "failed", label: "Ошибка" },
+      { value: "refunded", label: "Возврат" },
+    ],
+  },
+  { key: "transactionId", label: "ID транзакции", type: "text" as const },
+  {
+    key: "cardLastDigits",
+    label: "Последние цифры карты",
+    type: "text" as const,
+  },
+  { key: "paymentDate", label: "Дата платежа", type: "date" as const },
+];
+
 export default function PaymentsPage() {
-  const [payments, _setPayments] = useState(mockPayments);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [dateFilter, setDateFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-
-  const filteredPayments = payments.filter((payment) => {
-    const matchesSearch =
-      payment.user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.booking.car.brand
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      payment.booking.car.model
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      payment.booking.car.licensePlate
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      (payment.transactionId &&
-        payment.transactionId.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus =
-      statusFilter === "all" || payment.status === statusFilter;
-
-    let matchesDate = true;
-    if (dateFilter !== "all") {
-      const now = new Date();
-      const paymentDate = payment.paymentDate || payment.createdAt;
-      if (dateFilter === "today") {
-        matchesDate = paymentDate.toDateString() === now.toDateString();
-      } else if (dateFilter === "week") {
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        matchesDate = paymentDate >= weekAgo;
-      } else if (dateFilter === "month") {
-        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        matchesDate = paymentDate >= monthAgo;
-      }
-    }
-
-    return matchesSearch && matchesStatus && matchesDate;
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<IPayment | null>(null);
+  const [newPaymentData, setNewPaymentData] = useState<ICreatePayment>({
+    bookingId: 0,
+    userId: 0,
+    amount: 0,
+    status: "pending",
+    transactionId: "",
+    cardLastDigits: "",
+    paymentDate: new Date(),
   });
 
-  const totalPayments = payments.length;
-  const completedPayments = payments.filter(
-    (payment) => payment.status === "completed"
-  ).length;
-  const pendingPayments = payments.filter(
-    (payment) => payment.status === "pending"
-  ).length;
-  const totalRevenue = payments
-    .filter((payment) => payment.status === "completed")
-    .reduce((sum, payment) => sum + payment.amount, 0);
+  const {
+    payments,
+    isPaymentsLoading,
+    createPayment,
+    isCreatePaymentLoading,
+    deletePayment,
+    updatePayment,
+    isUpdatePaymentLoading,
+    isDeletePaymentLoading,
+  } = usePayments(() => setIsAddDialogOpen(false));
+
+  const { bookings } = useBookings(() => {});
+  const { clients } = useClients(() => {});
+
+  // Заполняем опции для выбора бронирования и клиента
+  paymentFields[0].options =
+    bookings?.map((booking) => ({
+      value: booking.id.toString(),
+      label: `Бронирование #${booking.id}`,
+    })) || [];
+
+  paymentFields[1].options =
+    clients?.map((client) => ({
+      value: client.id.toString(),
+      label: `${client.fullName} (${client.email})`,
+    })) || [];
+
+  let filteredPayments: IPayment[] = [];
+  let totalAmount = 0;
+  let pendingPayments = 0;
+  let completedPayments = 0;
+  let failedPayments = 0;
+  let refundedPayments = 0;
+
+  if (payments) {
+    filteredPayments = payments.filter((payment) => {
+      const matchesSearch =
+        payment.transactionId
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        payment.cardLastDigits?.includes(searchTerm) ||
+        payment.amount.toString().includes(searchTerm);
+
+      const matchesStatus =
+        statusFilter === "all" || payment.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+
+    totalAmount = payments.reduce((sum, payment) => sum + payment.amount, 0);
+    pendingPayments = payments.filter((p) => p.status === "pending").length;
+    completedPayments = payments.filter((p) => p.status === "completed").length;
+    failedPayments = payments.filter((p) => p.status === "failed").length;
+    refundedPayments = payments.filter((p) => p.status === "refunded").length;
+  }
+
+  const getClientInfo = (userId: number) => {
+    const client = clients?.find((c) => c.id === userId);
+    return client
+      ? `${client.fullName} (${client.email})`
+      : "Неизвестный клиент";
+  };
+
+  const getBookingInfo = (bookingId: number) => {
+    const booking = bookings?.find((b) => b.id === bookingId);
+    return booking ? `Бронирование #${booking.id}` : "Неизвестное бронирование";
+  };
+
+  const handleAddPayment = () => {
+    createPayment(newPaymentData);
+    setNewPaymentData({
+      bookingId: 0,
+      userId: 0,
+      amount: 0,
+      status: "pending",
+      transactionId: "",
+      cardLastDigits: "",
+      paymentDate: new Date(),
+    });
+  };
+
+  const handleDeletePayment = () => {
+    if (selectedPayment) {
+      deletePayment(selectedPayment.id);
+      setIsDrawerOpen(false);
+      setSelectedPayment(null);
+    }
+  };
+
+  const handleRowClick = (payment: IPayment) => {
+    setSelectedPayment({ ...payment });
+    setIsDrawerOpen(true);
+  };
+
+  const handleSavePayment = () => {
+    if (selectedPayment) {
+      updatePayment({
+        id: selectedPayment.id,
+        paymentData: {
+          bookingId: selectedPayment.bookingId,
+          userId: selectedPayment.userId,
+          amount: selectedPayment.amount,
+          status: selectedPayment.status,
+          transactionId: selectedPayment.transactionId || "",
+          cardLastDigits: selectedPayment.cardLastDigits || "",
+          paymentDate: selectedPayment.paymentDate || new Date(),
+        },
+      });
+      setIsDrawerOpen(false);
+      setSelectedPayment(null);
+    }
+  };
+
+  const handleCloseDrawer = (open: boolean) => {
+    setIsDrawerOpen(open);
+    if (!open) {
+      setTimeout(() => {
+        setSelectedPayment(null);
+      }, 150);
+    }
+  };
+
+  if (isPaymentsLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground font-medium">
+            Загрузка данных о платежах...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Добавить новый платеж</DialogTitle>
-              <DialogDescription>
-                Заполните информацию для регистрации нового платежа.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="booking">Бронирование</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите бронирование" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">
-                      Иван Петров - Toyota Camry
-                    </SelectItem>
-                    <SelectItem value="2">
-                      Мария Сидорова - Hyundai Solaris
-                    </SelectItem>
-                    <SelectItem value="3">Сергей Козлов - Kia Rio</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Сумма (₽)</Label>
-                  <Input id="amount" type="number" placeholder="7500" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Статус</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Выберите статус" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Ожидает</SelectItem>
-                      <SelectItem value="completed">Завершен</SelectItem>
-                      <SelectItem value="failed">Неудачный</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="transactionId">ID транзакции</Label>
-                  <Input id="transactionId" placeholder="txn_1234567890" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cardLastDigits">
-                    Последние 4 цифры карты
-                  </Label>
-                  <Input id="cardLastDigits" placeholder="4242" maxLength={4} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="paymentDate">Дата платежа</Label>
-                <Input id="paymentDate" type="datetime-local" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsAddDialogOpen(false)}
-              >
-                Отмена
-              </Button>
-              <Button onClick={() => setIsAddDialogOpen(false)}>
-                Добавить платеж
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className=" px-6 py-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div className="px-6 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Всего платежей
               </CardTitle>
-              <Receipt className="h-4 w-4 text-muted-foreground" />
+              <CreditCard className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalPayments}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Завершенные</CardTitle>
-              <div className="h-2 w-2 rounded-full bg-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {completedPayments}
+              <div className="text-3xl font-bold text-foreground">
+                {payments?.length || 0}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Ожидают обработки
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Общая сумма
               </CardTitle>
-              <div className="h-2 w-2 rounded-full bg-yellow-500" />
+              <DollarSign className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">
+              <div className="text-3xl font-bold text-blue-600">
+                {totalAmount.toLocaleString()} ₽
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Ожидание
+              </CardTitle>
+              <div className="h-3 w-3 rounded-full bg-amber-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-amber-600">
                 {pendingPayments}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Общий доход</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Завершено
+              </CardTitle>
+              <div className="h-3 w-3 rounded-full bg-emerald-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">
-                {totalRevenue.toLocaleString()} ₽
+              <div className="text-3xl font-bold text-emerald-600">
+                {completedPayments}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Ошибки
+              </CardTitle>
+              <div className="h-3 w-3 rounded-full bg-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-red-600">
+                {failedPayments}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filters and Search */}
-        <Card className="mb-6">
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-lg">Фильтры и поиск</CardTitle>
+            <CardTitle className="text-lg text-foreground">
+              Фильтры и поиск
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Найдите нужный платеж
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -379,7 +333,7 @@ export default function PaymentsPage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
-                    placeholder="Поиск по клиенту, автомобилю, ID транзакции..."
+                    placeholder="Поиск по ID транзакции, сумме или карте..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -392,37 +346,198 @@ export default function PaymentsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Все статусы</SelectItem>
-                  <SelectItem value="pending">Ожидает</SelectItem>
+                  <SelectItem value="pending">Ожидание</SelectItem>
                   <SelectItem value="completed">Завершен</SelectItem>
-                  <SelectItem value="failed">Неудачный</SelectItem>
-                  <SelectItem value="refunded">Возвращен</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <SelectValue placeholder="Период" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все время</SelectItem>
-                  <SelectItem value="today">Сегодня</SelectItem>
-                  <SelectItem value="week">Неделя</SelectItem>
-                  <SelectItem value="month">Месяц</SelectItem>
+                  <SelectItem value="failed">Ошибка</SelectItem>
+                  <SelectItem value="refunded">Возврат</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </CardContent>
         </Card>
 
-        {/* Payments Table */}
+        {/* Add Payment Dialog */}
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Добавить платеж</DialogTitle>
+              <DialogDescription>
+                Заполните информацию о новом платеже.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="bookingId">Бронирование</Label>
+                  <Select
+                    value={newPaymentData.bookingId.toString()}
+                    onValueChange={(value) =>
+                      setNewPaymentData({
+                        ...newPaymentData,
+                        bookingId: parseInt(value),
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите бронирование" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bookings?.map((booking) => (
+                        <SelectItem
+                          key={booking.id}
+                          value={booking.id.toString()}
+                        >
+                          Бронирование #{booking.id}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="userId">Клиент</Label>
+                  <Select
+                    value={newPaymentData.userId.toString()}
+                    onValueChange={(value) =>
+                      setNewPaymentData({
+                        ...newPaymentData,
+                        userId: parseInt(value),
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите клиента" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients?.map((client) => (
+                        <SelectItem
+                          key={client.id}
+                          value={client.id.toString()}
+                        >
+                          {client.fullName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="amount">Сумма (₽)</Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  placeholder="5000"
+                  value={newPaymentData.amount}
+                  onChange={(e) =>
+                    setNewPaymentData({
+                      ...newPaymentData,
+                      amount: Number.parseFloat(e.target.value),
+                    })
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="status">Статус</Label>
+                  <Select
+                    value={newPaymentData.status}
+                    onValueChange={(value: any) =>
+                      setNewPaymentData({ ...newPaymentData, status: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите статус" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Ожидание</SelectItem>
+                      <SelectItem value="completed">Завершен</SelectItem>
+                      <SelectItem value="failed">Ошибка</SelectItem>
+                      <SelectItem value="refunded">Возврат</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="paymentDate">Дата платежа</Label>
+                  <Input
+                    id="paymentDate"
+                    type="date"
+                    value={
+                      newPaymentData.paymentDate!.toISOString().split("T")[0]
+                    }
+                    onChange={(e) =>
+                      setNewPaymentData({
+                        ...newPaymentData,
+                        paymentDate: new Date(e.target.value),
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="transactionId">ID транзакции</Label>
+                  <Input
+                    id="transactionId"
+                    placeholder="txn_123456789"
+                    value={newPaymentData.transactionId!}
+                    onChange={(e) =>
+                      setNewPaymentData({
+                        ...newPaymentData,
+                        transactionId: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cardLastDigits">Последние цифры карты</Label>
+                  <Input
+                    id="cardLastDigits"
+                    placeholder="1234"
+                    value={newPaymentData.cardLastDigits!}
+                    onChange={(e) =>
+                      setNewPaymentData({
+                        ...newPaymentData,
+                        cardLastDigits: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddDialogOpen(false)}
+              >
+                Отмена
+              </Button>
+              <Button
+                onClick={handleAddPayment}
+                disabled={isCreatePaymentLoading}
+              >
+                {isCreatePaymentLoading ? "Добавление..." : "Добавить платеж"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Список платежей</CardTitle>
-            <CardDescription>
-              Найдено {filteredPayments.length} платежей из {totalPayments}
-            </CardDescription>
+          <CardHeader className="flex justify-between">
+            <div>
+              <CardTitle className="text-lg text-foreground">
+                История платежей
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Найдено {filteredPayments.length} платежей из{" "}
+                {payments?.length || 0}
+              </CardDescription>
+            </div>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Добавить платеж
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
+            <div className="rounded-lg border overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -430,51 +545,30 @@ export default function PaymentsPage() {
                     <TableHead>Бронирование</TableHead>
                     <TableHead>Сумма</TableHead>
                     <TableHead>Статус</TableHead>
-                    <TableHead>Способ оплаты</TableHead>
+                    <TableHead>Транзакция</TableHead>
                     <TableHead>Дата платежа</TableHead>
-                    <TableHead>ID транзакции</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
+                    <TableHead>Дата создания</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPayments.map((payment) => (
-                    <TableRow key={payment.id}>
+                  {filteredPayments.map((payment: IPayment) => (
+                    <TableRow
+                      key={payment.id}
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => handleRowClick(payment)}
+                    >
                       <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                            <Users className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <div className="font-medium">
-                              {payment.user.fullName}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {payment.user.email}
-                            </div>
-                          </div>
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium text-foreground">
+                            {getClientInfo(payment.userId)}
+                          </span>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium text-sm">
-                            {payment.booking.car.brand}{" "}
-                            {payment.booking.car.model}
-                          </div>
-                          <div className="text-xs text-muted-foreground font-mono">
-                            {payment.booking.car.licensePlate}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {payment.booking.startDate.toLocaleDateString(
-                              "ru-RU"
-                            )}{" "}
-                            -{" "}
-                            {payment.booking.endDate.toLocaleDateString(
-                              "ru-RU"
-                            )}
-                          </div>
-                        </div>
+                      <TableCell className="text-foreground">
+                        {getBookingInfo(payment.bookingId)}
                       </TableCell>
-                      <TableCell className="font-medium text-lg">
+                      <TableCell className="font-semibold text-foreground">
                         {payment.amount.toLocaleString()} ₽
                       </TableCell>
                       <TableCell>
@@ -482,71 +576,25 @@ export default function PaymentsPage() {
                           {statusLabels[payment.status]}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        {payment.cardLastDigits ? (
-                          <div className="flex items-center gap-1">
-                            <CreditCard className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-mono text-sm">
-                              •••• {payment.cardLastDigits}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            Не указано
-                          </span>
-                        )}
+                      <TableCell className="text-sm text-foreground">
+                        {payment.transactionId || "Не указано"}
                       </TableCell>
                       <TableCell>
-                        {payment.paymentDate ? (
-                          <div className="space-y-1">
-                            <div className="text-sm">
-                              {payment.paymentDate.toLocaleDateString("ru-RU")}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {payment.paymentDate.toLocaleTimeString("ru-RU", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <AlertCircle className="h-4 w-4" />
-                            <span className="text-sm">Не обработан</span>
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {payment.transactionId ? (
-                          <span className="font-mono text-xs bg-muted px-2 py-1 rounded">
-                            {payment.transactionId}
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-foreground">
+                            {payment.paymentDate
+                              ? new Date(
+                                  payment.paymentDate
+                                ).toLocaleDateString("ru-RU")
+                              : "Не указана"}
                           </span>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            —
-                          </span>
-                        )}
+                        </div>
                       </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              Просмотр деталей
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              Повторить платеж
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>Возврат средств</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
-                              Отменить
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                      <TableCell className="text-sm text-foreground">
+                        {new Date(payment.createdAt).toLocaleDateString(
+                          "ru-RU"
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -556,6 +604,59 @@ export default function PaymentsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <EntityDrawer
+        isOpen={isDrawerOpen}
+        onOpenChange={handleCloseDrawer}
+        entity={selectedPayment}
+        onEntityChange={setSelectedPayment}
+        onSave={handleSavePayment}
+        onDelete={handleDeletePayment}
+        isSaving={isUpdatePaymentLoading}
+        isDeleting={isDeletePaymentLoading}
+        title="Редактирование платежа"
+        description="Измените данные платежа и нажмите 'Сохранить'"
+        fields={paymentFields as any}
+        additionalInfo={
+          selectedPayment && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-foreground">
+                Дополнительная информация
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">
+                    Дата создания
+                  </Label>
+                  <div className="text-sm font-medium text-foreground">
+                    {new Date(selectedPayment.createdAt).toLocaleDateString(
+                      "ru-RU"
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">
+                    ID платежа
+                  </Label>
+                  <div className="text-sm font-medium text-foreground">
+                    #{selectedPayment.id}
+                  </div>
+                </div>
+              </div>
+              {selectedPayment.cardLastDigits && (
+                <div className="mt-4 space-y-1">
+                  <Label className="text-sm text-muted-foreground">
+                    Данные карты
+                  </Label>
+                  <div className="text-sm font-medium text-foreground">
+                    **** **** **** {selectedPayment.cardLastDigits}
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        }
+      />
     </div>
   );
 }

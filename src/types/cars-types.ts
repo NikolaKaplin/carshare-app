@@ -15,5 +15,5 @@ export interface ICar {
 }
 
 export interface ICreateCar extends Omit<ICar, "id" | "createdAt"> { }
-export interface IUpdateCar extends Omit<ICar, "id" | "createdAt"> { }
+export interface IUpdateCar extends Partial<Omit<ICar, "id" | "createdAt">> { }
 export interface IDeleteCar extends ICar { }
