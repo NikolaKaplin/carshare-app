@@ -144,6 +144,7 @@ export default function PaymentsPage() {
   let pendingPayments = 0;
   let completedPayments = 0;
   let failedPayments = 0;
+  //@ts-ignore
   let refundedPayments = 0;
 
   if (payments) {

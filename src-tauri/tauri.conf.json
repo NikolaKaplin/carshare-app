@@ -1,9 +1,10 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "carshare-app",
+  "productName": "Carshare App",
   "version": "0.1.0",
-  "identifier": "com.rizo.carshare-app",
+  "identifier": "carshare-app",
   "build": {
+    "removeUnusedCommands": true,
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "bun run build",

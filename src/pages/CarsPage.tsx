@@ -38,6 +38,8 @@ import { EntityDrawer } from "@/components/shared/entity-drawer";
 
 import type { ICreateCar, ICar } from "@/types/cars-types";
 import { useCars } from "@/hooks/use-cars";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { ColorThemeSelector } from "@/components/shared/color-scheme-selector";
 
 const statusColors = {
   available: "bg-emerald-500/10 text-emerald-700 border-emerald-200/50",
@@ -626,6 +628,8 @@ export default function CarsPage() {
           )
         }
       />
+      <ThemeToggle />
+      <ColorThemeSelector />
     </div>
   );
 }

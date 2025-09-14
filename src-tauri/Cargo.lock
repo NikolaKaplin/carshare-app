@@ -450,6 +450,7 @@ dependencies = [
 name = "carshare-app"
 version = "0.1.0"
 dependencies = [
+ "dirs",
  "once_cell",
  "serde",
  "serde_json",
@@ -457,6 +458,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-opener",
  "tauri-plugin-sql",
+ "thiserror 2.0.16",
 ]
 
 [[package]]

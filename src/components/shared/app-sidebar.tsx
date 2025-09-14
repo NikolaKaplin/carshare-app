@@ -45,7 +45,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               //@ts-ignore
               items={data.navMain}
             />
-            <NavSecondary items={data.navSecondary} className="mt-auto" />
+            <NavSecondary />
           </SidebarContent>
           <SidebarFooter>
             <NavUser user={user} />

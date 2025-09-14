@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, ChangeEvent } from "react";
 import { compare, hash } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { users } from "@/db/schema";
@@ -18,11 +18,14 @@ import { useNavigate } from "react-router";
 import { useAuthorized } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "../ui/alert";
 import { useDatabase } from "tauri-react-sqlite";
+import { DB_NAME } from "@/lib/constants";
+import { saveDbFile } from "@/lib/actions";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
   const { db } = useDatabase();
   const { login } = useAuthorized();
@@ -42,7 +45,6 @@ export function LoginForm({
     confirmPassword: "",
   });
 
-  // Проверяем есть ли пользователи в базе
   useEffect(() => {
     const checkUsers = async () => {
       if (!db) return;
@@ -117,7 +119,6 @@ export function LoginForm({
       return;
     }
 
-    // Валидация
     if (adminData.password !== adminData.confirmPassword) {
       setError("Пароли не совпадают");
       setIsLoading(false);
@@ -131,25 +132,21 @@ export function LoginForm({
     }
 
     try {
-      // Проверяем нет ли уже пользователей
-      const existingUsers = await db.select().from(users as any);
+      const existingUsers = await db.select().from(users);
       if (existingUsers.length > 0) {
         setError("Администратор уже создан");
         setIsLoading(false);
         return;
       }
 
-      // Хэшируем пароль
       const hashedPassword = await hash(adminData.password, 12);
 
-      // Создаем администратора
       await db.insert(users as any).values({
         username: adminData.username,
         email: adminData.email,
         passwordHash: hashedPassword,
       });
 
-      // Автоматически логиним
       login({
         username: adminData.username,
         email: adminData.email,
@@ -175,6 +172,15 @@ export function LoginForm({
     setError("");
   };
 
+  const handleFileSelected = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0].name == DB_NAME) {
+      const file = e.target.files[0];
+      await saveDbFile(file);
+      window.location.reload();
+    } else {
+    }
+  };
+
   if (hasUsers === null) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -186,7 +192,6 @@ export function LoginForm({
     );
   }
 
-  // Если пользователей нет - показываем только форму создания админа
   if (!hasUsers) {
     return (
       <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -295,6 +300,26 @@ export function LoginForm({
                 />
               </div>
 
+              <p className=" text-center">или</p>
+
+              <div className="grid w-full max-w-sm items-center gap-3">
+                <Label htmlFor="picture">Picture</Label>
+                <input
+                  ref={inputRef}
+                  className="hidden"
+                  id="picture"
+                  type="file"
+                  onChange={(e) => handleFileSelected(e)}
+                />
+                <Button type="button" onClick={() => inputRef.current?.click()}>
+                  Выберите файл
+                </Button>
+              </div>
+
+              <p className="text-muted-foreground text-sm">
+                Файл обязательно должен быть carshare-app.db
+              </p>
+
               <Button
                 type="submit"
                 className="w-full h-11 text-base"
@@ -316,7 +341,6 @@ export function LoginForm({
     );
   }
 
-  // Если пользователи есть - показываем форму входа
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="w-full max-w-md mx-auto border-0 shadow-lg">

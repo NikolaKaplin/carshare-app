@@ -3,8 +3,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
+import { LogOutIcon } from "lucide-react";
+import { useAuthorized } from "@/contexts/AuthContext";
 
 export function NavUser({
   user,
@@ -14,7 +14,7 @@ export function NavUser({
     email: string;
   };
 }) {
-  const { theme, setTheme } = useTheme();
+  const { logout } = useAuthorized();
 
   return (
     <SidebarMenu>
@@ -34,10 +34,12 @@ export function NavUser({
             </span>
           </div>
           <div
-            onClick={() => setTheme(theme == "dark" ? "light" : "dark")}
+            onClick={() => {
+              logout();
+            }}
             className="pt-1 h-8 w-8 rounded-lg grayscale"
           >
-            {theme == "dark" ? <MoonIcon /> : <SunIcon />}
+            <LogOutIcon />
           </div>
         </SidebarMenuButton>
       </SidebarMenuItem>
