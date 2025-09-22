@@ -25,7 +25,3 @@ export async function exportDatabase() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
-
-export async function exportDatabaseToCSV() {
-
-}

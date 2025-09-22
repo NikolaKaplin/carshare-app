@@ -38,8 +38,6 @@ import { EntityDrawer } from "@/components/shared/entity-drawer";
 
 import type { ICreateCar, ICar } from "@/types/cars-types";
 import { useCars } from "@/hooks/use-cars";
-import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { ColorThemeSelector } from "@/components/shared/color-scheme-selector";
 
 const statusColors = {
   available: "bg-emerald-500/10 text-emerald-700 border-emerald-200/50",
@@ -146,17 +144,17 @@ export default function CarsPage() {
           categoryFilter === "all" || car.category === categoryFilter;
 
         return matchesSearch && matchesStatus && matchesCategory;
-      }
+      },
     );
 
     availableCars = cars.filter(
-      (car: { status: string }) => car.status === "available"
+      (car: { status: string }) => car.status === "available",
     ).length;
     rentedCars = cars.filter(
-      (car: { status: string }) => car.status === "rented"
+      (car: { status: string }) => car.status === "rented",
     ).length;
     maintenanceCars = cars.filter(
-      (car: { status: string }) => car.status === "maintenance"
+      (car: { status: string }) => car.status === "maintenance",
     ).length;
   }
 
@@ -424,7 +422,7 @@ export default function CarsPage() {
                   <Select
                     value={newCarData.category}
                     onValueChange={(
-                      value: "economy" | "comfort" | "business"
+                      value: "economy" | "comfort" | "business",
                     ) => setNewCarData({ ...newCarData, category: value })}
                   >
                     <SelectTrigger>
@@ -618,7 +616,7 @@ export default function CarsPage() {
                   <div className="text-sm font-medium text-foreground">
                     {selectedCar.createdAt
                       ? new Date(selectedCar.createdAt).toLocaleDateString(
-                          "ru-RU"
+                          "ru-RU",
                         )
                       : "Не указана"}
                   </div>
@@ -628,8 +626,6 @@ export default function CarsPage() {
           )
         }
       />
-      <ThemeToggle />
-      <ColorThemeSelector />
     </div>
   );
 }

@@ -16,12 +16,17 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
-import { ThemeToggle } from "./theme-toggle";
-import { ColorThemeSelector } from "./color-scheme-selector";
+import { useTheme } from "@/contexts/ThemeContext";
+import { MoonIcon, SunIcon } from "lucide-react";
+import { Button } from "../ui/button";
+import { useAuthStore } from "@/stores/auth-store";
+import { Input } from "../ui/input";
 
 export function NavSecondary() {
   const [isOpenSettings, setIsOpenSettings] = useState<boolean>(false);
   const [isOpenAbout, setIsOpenAbout] = useState<boolean>(false);
+  const { theme, setTheme } = useTheme();
+  const { user } = useAuthStore();
   return (
     <>
       <Dialog open={isOpenSettings} onOpenChange={setIsOpenSettings}>
@@ -30,12 +35,21 @@ export function NavSecondary() {
             <DialogTitle>Settings</DialogTitle>
             <DialogDescription>Панель настроек</DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end gap-2 mt-4"></div>
-          <Label>Темы</Label>
-          <div className="grid gap-2">
-            <Label htmlFor="theme">Цветовая тема</Label>
-            <ThemeToggle />
-            <ColorThemeSelector />
+          {user && (
+            <div className="grid grid-cols-2 gap-3">
+              <Label>Имя</Label>
+              <Input defaultValue={user.username} />
+              <Label>Почта</Label>
+              <Input defaultValue={user.email} />
+            </div>
+          )}
+          <div className="flex justify-between gap-2 mt-4">
+            <Label>Тема</Label>
+            <Button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme == "dark" ? <MoonIcon /> : <SunIcon />}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

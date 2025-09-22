@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real} from 'drizzle-orm/sqlite-core';
 
 // 1. Пользователи 
 export const users = sqliteTable("users", {
@@ -77,16 +77,71 @@ export const payments = sqliteTable('payments', {
     createdAt: integer('created_at', { mode: 'timestamp' }).defaultNow().notNull(),
 });
 
+// 7. Бэкапы
+export const backups = sqliteTable('backups', {
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+    fileSize: text('file_size', { mode: "text", length: 16 }).notNull(),
+    saveFolder: text('save_folder', { mode: "text" }).notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).defaultNow().notNull(),
+})
+
+// 8. Точки компаний
+export const points = sqliteTable('points', {
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+    address: text('address', { mode: "text" }).notNull(),
+    fullAddress: text('full_address', { mode: "text" }).notNull(),
+    latitude: text('full_address', { mode: "text" }).notNull(),
+    longitude: text('full_address', { mode: "text" }).notNull(),
+})
+
+// 9. Угоны и дтп
+export const hijacking = sqliteTable("hijacking", {
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+    description: text('hijacking_description', { mode: "text" }).notNull(),
+    closed: integer('closed', { mode: 'boolean' }).notNull().default(false),
+    userId: integer('client_id').notNull().references(() => clients.id),
+    carId: integer('car_id').notNull().references(() => cars.id),
+    createdAt: integer('created_at', { mode: 'timestamp' }).defaultNow().notNull(),
+})
+
+// 10. Отзывы пользователей
+export const comments = sqliteTable('comments', {
+    id: integer('id').primaryKey({ autoIncrement: true }).notNull(),
+    userId: integer('client_id').notNull().references(() => clients.id),
+    comment: text('comment').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).defaultNow().notNull(),
+})
+
+
+
 
 // Типы TypeScript
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
+export type TUser = typeof users.$inferSelect;
+export type TNewUser = typeof users.$inferInsert;
 
-export type Car = typeof cars.$inferSelect;
-export type NewCar = typeof cars.$inferInsert;
+export type TClient = typeof clients.$inferSelect;
+export type TNewClient = typeof clients.$inferInsert;
 
-export type Booking = typeof bookings.$inferSelect;
-export type NewBooking = typeof bookings.$inferInsert;
+export type TCar = typeof cars.$inferSelect;
+export type TNewCar = typeof cars.$inferInsert;
 
-export type Maintenance = typeof maintenance.$inferSelect;
-export type NewMaintenance = typeof maintenance.$inferInsert;
+export type TBooking = typeof bookings.$inferSelect;
+export type TNewBooking = typeof bookings.$inferInsert;
+
+export type TMaintenance = typeof maintenance.$inferSelect;
+export type TNewMaintenance = typeof maintenance.$inferInsert;
+
+export type TPayments = typeof payments.$inferSelect;
+export type TNewPayments = typeof payments.$inferInsert;
+
+export type TBackup = typeof backups.$inferSelect;
+export type TNewbackup = typeof backups.$inferInsert;
+
+export type TPoint = typeof points.$inferSelect;
+export type TNewPoint = typeof points.$inferInsert;
+
+export type THijacking = typeof hijacking.$inferSelect
+export type TNewHijacking = typeof hijacking.$inferInsert
+
+export type TComment = typeof comments.$inferSelect;
+export type TNewComment = typeof comments.$inferInsert
