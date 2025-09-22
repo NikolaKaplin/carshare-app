@@ -1,5 +1,5 @@
 import { customToast } from "@/components/shared/toast-custom";
-import { carsService } from "@/services/cars.sevice";
+import { carsService } from "@/services/cars-sevice";
 import { ICar, ICreateCar, IUpdateCar } from "@/types/cars-types";
 import { useMutation, usePrefetchQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";

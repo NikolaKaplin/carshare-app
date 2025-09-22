@@ -7,6 +7,7 @@ export async function saveDbFile(file: File) {
     });
 }
 
+//@ts-ignore
 async function getDatabase(): Promise<Uint8Array<ArrayBuffer>> {
     const dbFile = await invoke<number[]>('download_database');
     const uintArray = new Uint8Array(dbFile);

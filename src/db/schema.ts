@@ -135,13 +135,17 @@ export type TPayments = typeof payments.$inferSelect;
 export type TNewPayments = typeof payments.$inferInsert;
 
 export type TBackup = typeof backups.$inferSelect;
-export type TNewbackup = typeof backups.$inferInsert;
+export type TNewBackup = typeof backups.$inferInsert;
+export type TUpdateBackup = Partial<Omit<TNewBackup, 'id'>>;
 
 export type TPoint = typeof points.$inferSelect;
 export type TNewPoint = typeof points.$inferInsert;
+export type TUpdatePoint = Partial<Omit<TNewPoint, 'id'>>;
 
 export type THijacking = typeof hijacking.$inferSelect
 export type TNewHijacking = typeof hijacking.$inferInsert
+export type TUpdateHijacking = Partial<Omit<TNewHijacking, 'id'>>;
 
 export type TComment = typeof comments.$inferSelect;
 export type TNewComment = typeof comments.$inferInsert
+export type TUpdateComment = Partial<Omit<TNewComment, 'id'>>;

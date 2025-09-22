@@ -1,7 +1,4 @@
-pub const DB_NAME_TYPE: &str = "sqlite:carshare-app.db";
-pub const DB_NAME: &str = "carshare-app.db";
-pub const APP_NAME: &str = "carshare-app";
-pub const DEFAULT_SQL_SCHEMA: &'static str = "CREATE TABLE `backups` (
+CREATE TABLE `backups` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`file_size` text(16) NOT NULL,
 	`save_folder` text NOT NULL,
@@ -112,4 +109,4 @@ CREATE TABLE `users` (
 	`password_hash` text NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);";
+CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);

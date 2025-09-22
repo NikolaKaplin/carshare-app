@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
 export const withTheme = (component: () => React.ReactNode) => () => {
-  return <ThemeProvider defaultMode="dark">{component()}</ThemeProvider>;
+  return <ThemeProvider defaultTheme="system">{component()}</ThemeProvider>;
 };

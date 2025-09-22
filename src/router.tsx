@@ -10,6 +10,10 @@ import RootLayout from "./layouts/root-layout";
 import MaintenancePage from "./pages/MaintenancePage";
 import DashboardPage from "./pages/DashboardPage";
 import BookingsPage from "./pages/BookingsPage";
+import BackupsPage from "./pages/BackupsPage";
+import PointsPage from "./pages/PointsPage";
+import HijackingPage from "./pages/HijackingPage";
+import CommentsPage from "./pages/CommentsPage";
 
 function Routing() {
   return (
@@ -24,6 +28,10 @@ function Routing() {
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="maintenance" element={<MaintenancePage />} />
             <Route path="payments" element={<PaymentsPage />} />
+            <Route path="backups" element={<BackupsPage />} />
+            <Route path="points" element={<PointsPage />} />
+            <Route path="hijacking" element={<HijackingPage />} />
+            <Route path="comments" element={<CommentsPage/>}/>
             <Route path="sqlite" element={<ImportExportPage />} />
           </Route>
         </Route>

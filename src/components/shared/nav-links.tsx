@@ -1,13 +1,13 @@
-import { carsService } from "@/services/cars.sevice";
+import { carsService } from "@/services/cars-sevice";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router";
 import { useDatabase } from "tauri-react-sqlite";
 import { SidebarMenuButton } from "../ui/sidebar";
 import { Icon } from "@tabler/icons-react";
-import { clientsService } from "@/services/clients.service";
-import { bookingsService } from "@/services/bookings.service";
-import { maintenanceService } from "@/services/maintenance.service";
-import { paymentsService } from "@/services/payments.service";
+import { clientsService } from "@/services/clients-service";
+import { bookingsService } from "@/services/bookings-service";
+import { maintenanceService } from "@/services/maintenance-service";
+import { paymentsService } from "@/services/payments-service";
 
 function NavLinkPrefetch({
   item,

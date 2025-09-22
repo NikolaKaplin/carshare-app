@@ -1,6 +1,4 @@
 import * as React from "react";
-import { IconInnerShadowTop } from "@tabler/icons-react";
-
 import { NavMain } from "@/components/shared/nav-main";
 import { NavSecondary } from "@/components//shared/nav-secondary";
 import { NavUser } from "@/components/shared/nav-user";
@@ -15,6 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuthorized } from "@/contexts/AuthContext";
 import { data } from "@/lib/constants";
+import { Squirrel } from "lucide-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuthorized();
@@ -30,7 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="data-[slot=sidebar-menu-button]:!p-1.5 hover:bg-sidebar active:bg-sidebar"
                 >
                   <div className="mt-8">
-                    <IconInnerShadowTop className="!size-5" />
+                    <Squirrel className="!size-5" />
                     <span className="text-base font-semibold flex">
                       <p className="font-bold">belka</p>
                       <p className="font-light">Car</p>

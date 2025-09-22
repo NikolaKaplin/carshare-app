@@ -1,5 +1,5 @@
 import { customToast } from "@/components/shared/toast-custom";
-import { paymentsService } from "@/services/payments.service";
+import { paymentsService } from "@/services/payments-service";
 import { IPayment, ICreatePayment, IUpdatePayment } from "@/types/payments-types";
 import { useMutation, usePrefetchQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";

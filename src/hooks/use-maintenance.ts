@@ -1,5 +1,5 @@
 import { customToast } from "@/components/shared/toast-custom";
-import { maintenanceService } from "@/services/maintenance.service";
+import { maintenanceService } from "@/services/maintenance-service";
 import { IMaintenance, ICreateMaintenance, IUpdateMaintenance } from "@/types/maintenance-types";
 import { useMutation, usePrefetchQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";

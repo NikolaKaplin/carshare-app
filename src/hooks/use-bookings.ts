@@ -1,5 +1,5 @@
 import { customToast } from "@/components/shared/toast-custom";
-import { bookingsService } from "@/services/bookings.service";
+import { bookingsService } from "@/services/bookings-service";
 import { IBooking, ICreateBooking, IUpdateBooking } from "@/types/bookings-types";
 import { useMutation, usePrefetchQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";

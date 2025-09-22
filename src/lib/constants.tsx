@@ -1,5 +1,5 @@
 import { IconDashboard, IconDatabase, IconMoneybag } from "@tabler/icons-react";
-import { Car, User, Handshake, Drill } from "lucide-react";
+import { Car, User, Handshake, Drill, DatabaseBackup, PointerIcon, CarFrontIcon, MessageCircleCode } from "lucide-react";
 
 export const DB_TYPE = "sqlite";
 export const DB_NAME = "carshare-app.db";
@@ -43,6 +43,30 @@ export const data = {
       url: "/payments",
       icon: IconMoneybag,
       queryKey: "payments",
+    },
+    {
+      title: "Бэкапы",
+      url: "/backups",
+      icon: DatabaseBackup,
+      queryKey: "backups",
+    },
+    {
+      title: "Филиалы",
+      url: "/points",
+      icon: PointerIcon,
+      queryKey: "backups",
+    },
+    {
+      title: "Угоны",
+      url: "/hijacking",
+      icon: CarFrontIcon,
+      queryKey: "hijacking",
+    },
+    {
+      title: "Комментраии",
+      url: "/comments",
+      icon: MessageCircleCode,
+      queryKey: "comments",
     },
     {
       title: "Импорт и экспорт Sqlite",
